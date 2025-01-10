@@ -1,6 +1,5 @@
 import logging
 import os
-import re
 import socket
 import unicodedata
 
@@ -18,12 +17,12 @@ logging.basicConfig(
     encoding="utf-8",
     filemode="a",
 )
-# Set higher logging level for httpx to avoid all GET and POST requests being logged
+
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
-# Initiate the bot token as a variable. The token is stored in a .env file.
+# Initiate the bot token and chat_id as a variable. The token is stored in a .env file.
 token = os.getenv("TOKEN_BOT")
 
 PAM_CHAT_ID = os.getenv("PAM_CHAT_ID")
@@ -43,9 +42,6 @@ async def boop(update, context):
         """This is definitely my bot ! @TechSherpa here!
 """
     )
-
-
-import unicodedata
 
 
 def reverse_text_sense_preserved(input_text):
