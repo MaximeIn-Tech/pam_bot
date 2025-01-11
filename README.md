@@ -11,6 +11,7 @@ It is created to help Pam who suffered a brain injury and can only write in reve
 ### Januarty 11th 2025:
 
 - Fixed the contractions properly with a mapping system. The old system wasn't working.
+- Fixed an issue where am/pm weren't properly switched.
 
 ### January 10th 2025:
 
