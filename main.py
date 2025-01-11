@@ -64,16 +64,21 @@ def reverse_text_sense_preserved(input_text):
     """
 
     def reverse_word(word):
-        # Special cases: Don't reverse "am", "pm", "1st", "2nd", "3rd", "4th", "5th", "6th", and other ordinal numbers
+        # Special cases: Don't reverse "am", "pm"
         if word.lower() in ["am", "pm"]:
             return word
 
-        # Handle ordinals like 1st, 2nd, 3rd, etc., but exclude "10th"
-        if re.match(r"^\d+(st|nd|rd|th)$", word.lower()):
-            # Exclude "10th" and other similar ordinals that should not be reversed
-            if word.lower() == "10th":
-                return word
-            return word
+        # Log to check how "1st" and similar words are handled
+        logger.info(f"Processing word: {word}")
+
+        # Handle ordinals like 1st, 2nd, 3rd, 10th, etc.
+        ordinal_match = re.match(r"^(\D*)(\d+)(st|nd|rd|th)(\D*)$", word.lower())
+        if ordinal_match:
+            prefix = ordinal_match.group(1)
+            number = ordinal_match.group(2)
+            suffix = ordinal_match.group(3)
+            suffix_end = ordinal_match.group(4)
+            return prefix + number + suffix + suffix_end
 
         # Handling time (e.g., "12:30pm", "11:45am")
         if re.match(r"\d{1,2}:\d{2}(am|pm)", word.lower()):
@@ -83,12 +88,6 @@ def reverse_text_sense_preserved(input_text):
         # Handling contractions (if applicable)
         if word.lower() in contractions_map:
             return contractions_map[word.lower()]
-
-        # Handle word within parentheses (or any surrounding non-alphabetic characters)
-        if word.startswith("(") and word.endswith(")"):
-            inner_word = word[1:-1]  # Remove parentheses
-            reversed_inner_word = reverse_word(inner_word)  # Reverse the inner word
-            return f"({reversed_inner_word})"  # Re-add parentheses around the reversed word
 
         # Normalize the word to separate accents from base characters
         normalized = unicodedata.normalize("NFD", word)
@@ -103,12 +102,7 @@ def reverse_text_sense_preserved(input_text):
                 others.append(char)
 
         # Reverse letters without handling contractions
-        reversed_letters = []
-        i = len(letters) - 1
-
-        while i >= 0:
-            reversed_letters.append(letters[i])
-            i -= 1
+        reversed_letters = letters[::-1]  # Reverse the list of letters
 
         # Reconstruct the word by combining reversed letters and preserved punctuation
         result = []
@@ -125,15 +119,14 @@ def reverse_text_sense_preserved(input_text):
         # Normalize back to NFC to compose accented characters
         return unicodedata.normalize("NFC", "".join(result))
 
-    # Process each line of the input text
     original_lines = []
     for line in input_text.splitlines():
-        if line.strip():  # Process non-empty lines
+        if line.strip():
             original_words = [reverse_word(word) for word in line.split()]
+            logger.info(f"Reversed line: {' '.join(original_words)}")
             original_lines.append(" ".join(original_words))
         else:
             original_lines.append("")  # Preserve empty lines
-
     return "\n".join(original_lines)
 
 
