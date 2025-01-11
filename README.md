@@ -12,6 +12,7 @@ It is created to help Pam who suffered a brain injury and can only write in reve
 
 - Fixed the contractions properly with a mapping system. The old system wasn't working.
 - Fixed an issue where am/pm weren't properly switched.
+- Fixed any reversed numbers (1st, 2nd, 3rd, 4th etc)
 
 ### January 10th 2025:
 
