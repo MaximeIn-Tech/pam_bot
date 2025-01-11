@@ -8,6 +8,10 @@ It is created to help Pam who suffered a brain injury and can only write in reve
 
 ## Change Log
 
+### Januarty 11th 2025:
+
+- Fixed the contractions properly with a mapping system. The old system wasn't working.
+
 ### January 10th 2025:
 
 - Fixed an issue where contractions weren't behaving correctly.

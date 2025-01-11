@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import socket
 import unicodedata
 
@@ -44,47 +45,79 @@ async def boop(update, context):
     )
 
 
+# Define the contraction map (you can extend this list as needed)
+contractions_map = {
+    "t’nac": "can't",
+    "t’now": "won't",
+    "t'nod": "don't",
+    "t'ndid": "didn't",
+    "t'nsi": "isn't",
+    "t'nasw": "wasn't",
+    "t'nera": "aren't",
+    # Add more contractions as needed
+}
+
+
 def reverse_text_sense_preserved(input_text):
     """
-    Reverse the letters of each word while maintaining word order and punctuation.
+    Reverses a reversed text back to its original form while handling contractions properly.
     """
 
     def reverse_word(word):
+        # Special cases
+        if word.lower() in ["am", "pm"]:
+            return word
+        if re.match(r"\d{1,2}:\d{2}(am|pm)", word.lower()):
+            time, meridiem = word[:-2], word[-2:]
+            return time + meridiem.lower()
+        if word.lower() in contractions_map:
+            return contractions_map[word.lower()]
         # Normalize the word to separate accents from base characters
         normalized = unicodedata.normalize("NFD", word)
 
-        # Split the word into characters while preserving letters and apostrophes as a single unit
+        # Separate letters/apostrophes from non-letter characters
         letters = []
         others = []
         for char in normalized:
-            if unicodedata.category(char).startswith("L") or char == "'":
-                letters.append(
-                    char
-                )  # Treat letters and apostrophes as part of the word
+            if char.isalpha() or char == "'":
+                letters.append(char)
             else:
-                others.append(char)  # Non-letter characters are handled separately
+                others.append(char)
 
-        # Reverse the letters while keeping apostrophes intact
-        reversed_letters = list(reversed(letters))
+        # Reverse letters without handling contractions
+        reversed_letters = []
+        i = len(letters) - 1
+
+        while i >= 0:
+            # Simply append the letter and move to the previous one
+            reversed_letters.append(letters[i])
+            i -= 1
+
+        # Reconstruct the word by combining reversed letters and preserved punctuation
         result = []
+        letter_index = 0
+        other_index = 0
         for char in word:
-            if char in letters:
-                result.append(reversed_letters.pop(0))  # Replace with reversed letters
+            if char.isalpha() or char == "'":
+                result.append(reversed_letters[letter_index])
+                letter_index += 1
             else:
-                result.append(char)  # Keep other characters in place
+                result.append(others[other_index])
+                other_index += 1
 
-        # Combine and normalize back to composed form
+        # Normalize back to NFC to compose accented characters
         return unicodedata.normalize("NFC", "".join(result))
 
-    reversed_lines = []
+    # Process each line of the input text
+    original_lines = []
     for line in input_text.splitlines():
         if line.strip():  # Process non-empty lines
-            reversed_words = [reverse_word(word) for word in line.split()]
-            reversed_lines.append(" ".join(reversed_words))
+            original_words = [reverse_word(word) for word in line.split()]
+            original_lines.append(" ".join(original_words))
         else:
-            reversed_lines.append("")  # Preserve empty lines
+            original_lines.append("")  # Preserve empty lines
 
-    return "\n".join(reversed_lines)
+    return "\n".join(original_lines)
 
 
 async def reverse_message(update, context):
@@ -97,7 +130,6 @@ async def reverse_message(update, context):
     elif update.message.caption:
         user_message = update.message.caption
     else:
-        # If it's neither text nor an image/video with caption, ignore it
         return
 
     # If it's a direct message (DM) or from a specific chat, reverse the text
