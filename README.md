@@ -8,7 +8,12 @@ It is created to help Pam who suffered a brain injury and can only write in reve
 
 ## Change Log
 
-### Januarty 11th 2025:
+### January 15th 2025:
+
+- Fixed a bug with contractions, the ' was not the same as the one used by the user.
+- Fixed links being reverse when they don't need to.
+
+### January 11th 2025:
 
 - Fixed the contractions properly with a mapping system. The old system wasn't working.
 - Fixed an issue where am/pm weren't properly switched.

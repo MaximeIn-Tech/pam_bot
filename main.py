@@ -49,6 +49,13 @@ async def boop(update, context):
 contractions_map = {
     "t’nac": "can't",
     "t’now": "won't",
+    "t’nod": "don't",
+    "t’ndid": "didn't",
+    "t’nsi": "isn't",
+    "t’nasw": "wasn't",
+    "t’nera": "aren't",
+    "t'nac": "can't",
+    "t'now": "won't",
     "t'nod": "don't",
     "t'ndid": "didn't",
     "t'nsi": "isn't",
@@ -64,6 +71,10 @@ def reverse_text_sense_preserved(input_text):
     """
 
     def reverse_word(word):
+        # Check if the word is a URL
+        if re.match(r"https?://\S+", word):
+            return word  # Return the URL as is, without reversing
+
         # Special cases: Don't reverse "am", "pm"
         if word.lower() in ["am", "pm"]:
             return word
