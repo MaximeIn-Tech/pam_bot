@@ -54,6 +54,8 @@ contractions_map = {
     "t’nsi": "isn't",
     "t’nasw": "wasn't",
     "t’nera": "aren't",
+    "tn’seod": "doesn't",
+    "t’nseod": "doesn't",
     "t'nac": "can't",
     "t'now": "won't",
     "t'nod": "don't",
@@ -61,6 +63,8 @@ contractions_map = {
     "t'nsi": "isn't",
     "t'nasw": "wasn't",
     "t'nera": "aren't",
+    "tn'seod": "doesn't",
+    "t'nseod": "doesn't",
     # Add more contractions as needed
 }
 
