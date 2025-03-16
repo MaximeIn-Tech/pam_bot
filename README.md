@@ -8,6 +8,11 @@ It is created to help Pam who suffered a brain injury and can only write in reve
 
 ## Change Log
 
+### March 16th 2025:
+
+- Fixed a spelling issue.
+- Fixed the voice notes with captions not being reversed.
+
 ### January 15th 2025:
 
 - Fixed a bug with contractions, the ' was not the same as the one used by the user.

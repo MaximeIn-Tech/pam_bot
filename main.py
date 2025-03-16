@@ -56,6 +56,7 @@ contractions_map = {
     "t’nera": "aren't",
     "tn’seod": "doesn't",
     "t’nseod": "doesn't",
+    "ev’uoy": "you've",
     "t'nac": "can't",
     "t'now": "won't",
     "t'nod": "don't",
@@ -65,6 +66,7 @@ contractions_map = {
     "t'nera": "aren't",
     "tn'seod": "doesn't",
     "t'nseod": "doesn't",
+    "ev'uoy": "you've",
     # Add more contractions as needed
 }
 
@@ -174,6 +176,10 @@ async def reverse_message(update, context):
             await update.message.reply_video(
                 video=update.message.video.file_id, caption=reversed_message
             )
+        elif update.message.voice:
+            await update.message.reply_voice(
+                voice=update.message.voice.file_id, caption=reversed_message
+            )
 
 
 def main():
@@ -188,7 +194,8 @@ def main():
     # Message handler for reversing text
     application.add_handler(
         MessageHandler(
-            (filters.TEXT | filters.PHOTO | filters.VIDEO) & ~filters.COMMAND,
+            (filters.TEXT | filters.PHOTO | filters.VIDEO | filters.VOICE)
+            & ~filters.COMMAND,
             reverse_message,
         )
     )
