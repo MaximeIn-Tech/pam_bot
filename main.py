@@ -151,37 +151,52 @@ def reverse_text_sense_preserved(input_text):
 
 async def reverse_message(update, context):
     """Handle incoming messages and reply with the reversed text."""
-    user_id = update.message.from_user.id
+    message = update.message
+    user_id = message.from_user.id
+    chat_type = message.chat.type
 
-    # Check if the message has text, photo with caption, or video with caption
-    if update.message.text:
-        user_message = update.message.text
-    elif update.message.caption:
-        user_message = update.message.caption
-    else:
+    # Extraire le contenu texte pertinent (texte ou caption)
+    user_message = message.text or message.caption
+    if not user_message:
+        return  # Rien à faire si aucun texte à inverser
+
+    # Filtrer : accepter seulement les messages privés ou d'un chat spécifique
+    if chat_type != "private" and str(user_id) != PAM_CHAT_ID:
         return
 
-    # If it's a direct message (DM) or from a specific chat, reverse the text
-    if update.message.chat.type == "private" or str(user_id) == PAM_CHAT_ID:
-        reversed_message = reverse_text_sense_preserved(user_message)
+        # Cas spécial : animation + texte sans caption (ex: GIF depuis galerie Telegram)
+    if message.animation and message.text and not message.caption:
+        reversed_message = reverse_text_sense_preserved(message.text)
+        await message.reply_animation(
+            animation=message.animation.file_id, caption=reversed_message
+        )
+        return
 
-        if update.message.text:
-            # Respond to a text message
-            await update.message.reply_text(reversed_message)
-        elif update.message.photo:
-            # Respond to a photo with the reversed caption
-            await update.message.reply_photo(
-                photo=update.message.photo[-1].file_id, caption=reversed_message
-            )
-        elif update.message.video:
-            # Respond to a video with the reversed caption
-            await update.message.reply_video(
-                video=update.message.video.file_id, caption=reversed_message
-            )
-        elif update.message.voice:
-            await update.message.reply_voice(
-                voice=update.message.voice.file_id, caption=reversed_message
-            )
+    # Appliquer la fonction de reverse
+    reversed_message = reverse_text_sense_preserved(user_message)
+
+    # Dictionnaire de correspondance entre type de contenu et méthode de réponse
+    reply_methods = {
+        "text": lambda: message.reply_text(reversed_message),
+        "photo": lambda: message.reply_photo(
+            photo=message.photo[-1].file_id, caption=reversed_message
+        ),
+        "video": lambda: message.reply_video(
+            video=message.video.file_id, caption=reversed_message
+        ),
+        "voice": lambda: message.reply_voice(
+            voice=message.voice.file_id, caption=reversed_message
+        ),
+        "animation": lambda: message.reply_animation(
+            animation=message.animation.file_id, caption=reversed_message
+        ),
+    }
+
+    # Exécuter la bonne méthode de réponse selon le type de contenu
+    for media_type, reply_func in reply_methods.items():
+        if getattr(message, media_type, None):
+            await reply_func()
+            break  # Une seule réponse suffit
 
 
 def main():
